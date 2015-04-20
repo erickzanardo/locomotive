@@ -1,8 +1,6 @@
 package org.eck;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.mashape.unirest.http.HttpResponse;
@@ -10,19 +8,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-public class LocomotiveResponseTest {
-    private Locomotive locomotive;
-
-    @Before
-    public void tearUp() {
-        locomotive = new Locomotive(8080);
-        locomotive.boot();
-    }
-    
-    @After
-    public void tearDown() {
-        locomotive.shutdown();
-    }
+public class LocomotiveResponseTest extends AbstractLocomotiveTest {
 
     @Test
     public void testResponseWrite() throws UnirestException {
