@@ -1,6 +1,10 @@
-![Locomotive](https://github.com/erickzanardo/locomotive/blob/master/locomotive.png?raw=tru)e
+![Locomotive](https://github.com/erickzanardo/locomotive/blob/master/locomotive.png?raw=true)
 
 This is a simple Java Rest API, based on the NodeJs lib Express.
+
+## Maven repository
+
+Comming soon
 
 ## Hello World
 ```java
