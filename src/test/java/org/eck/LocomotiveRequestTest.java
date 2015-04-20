@@ -50,4 +50,17 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
                 .asString();
         Assert.assertEquals("3", response.getBody());
     }
+
+    @Test
+    public void testRequestRouteParams() throws UnirestException {
+        locomotive.post("/calc/sum/:number1/and/:number2", (req, resp) -> {
+            int sum = req.param("number1").asInteger()
+                    + req.param("number2").asInteger();
+            resp.append(String.valueOf(sum));
+        });
+
+        HttpResponse<String> response = Unirest.post(url("/calc/sum/{number1}/and/{number2}"))
+                .routeParam("number1", "1").routeParam("number2", "2").asString();
+        Assert.assertEquals("3", response.getBody());
+    }
 }

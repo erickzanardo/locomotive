@@ -7,8 +7,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.eck.path.RouteParser;
 
 public class Locomotive {
     private static final String GET = "GET";
@@ -17,6 +21,7 @@ public class Locomotive {
     private static final String DELETE = "DELETE";
 
     private int port;
+    private List<String> routeWagons = new ArrayList<String>();
     private Map<String, Map<String, Wagon>> wagons = new HashMap<>();
     private Channel ch;
     private NioEventLoopGroup bossGroup;
@@ -43,6 +48,15 @@ public class Locomotive {
         addWagon(DELETE, url, wagon);
     }
 
+    public String getUriPattern(String uri) {
+        for (String route : routeWagons) {
+            if (RouteParser.macthes(route, uri)) {
+                return route;
+            }
+        }
+        return null;
+    }
+
     public Wagon getWagon(String method, String url) {
         if (wagons.get(method) != null) {
             return wagons.get(method).get(url);
@@ -53,6 +67,9 @@ public class Locomotive {
     private void addWagon(String method, String url, Wagon wagon) {
         if (wagons.get(method) == null) {
             wagons.put(method, new HashMap<String, Wagon>());
+        }
+        if (url.contains(":")) {
+            routeWagons.add(url);
         }
         wagons.get(method).put(url, wagon);
     }

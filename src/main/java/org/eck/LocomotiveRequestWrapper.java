@@ -17,17 +17,34 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eck.path.RouteParser;
+
 public class LocomotiveRequestWrapper {
 
     private HttpRequest request;
     private Map<String, Param> params = new HashMap<String, Param>();
     private String body;
+    private String uri;
+    private String pattern;
 
-    public LocomotiveRequestWrapper(HttpRequest request) {
+    public LocomotiveRequestWrapper(HttpRequest request, String uri, String pattern) {
         this.request = request;
+        this.uri = uri;
+        this.pattern = pattern;
         decodeQueryString();
+        decodePattern();
         if (request.getMethod().equals(HttpMethod.POST)) {
             decodePost();
+        }
+    }
+
+    private void decodePattern() {
+        if (pattern != null) {
+            Map<String, String> params = RouteParser.parse(pattern, uri);
+            Set<Entry<String, String>> entrySet = params.entrySet();
+            for (Entry<String, String> entry : entrySet) {
+                this.params.put(entry.getKey(), new Param(Arrays.asList(entry.getValue())));
+            }
         }
     }
 

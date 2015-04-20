@@ -25,6 +25,7 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
     private Locomotive locomotive;
     private Wagon wagon;
     private LocomotiveRequestWrapper requestWrapper;
+    private String pattern;
 
     public LocomotiveHandler(Locomotive locomotive) {
         this.locomotive = locomotive;
@@ -47,8 +48,10 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
                 uri = uri.substring(0, uri.indexOf("?"));
             }
 
-            this.requestWrapper = new LocomotiveRequestWrapper(this.request);
-            this.wagon = locomotive.getWagon(method, uri);
+            this.pattern = locomotive.getUriPattern(uri);
+            this.wagon = locomotive.getWagon(method, pattern != null ? pattern : uri);
+
+            this.requestWrapper = new LocomotiveRequestWrapper(this.request, uri, pattern);
         }
 
         if (msg instanceof HttpContent) {
