@@ -4,6 +4,10 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import java.util.Map.Entry;
+import java.util.Set;
+
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -49,21 +53,29 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
                 LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
                 this.wagon.process(null, resp);
 
-                HttpResponseStatus status =
-                        resp.status() != null ?
-                                HttpResponseStatus.valueOf(resp.status()) : OK;
+                // Status
+                HttpResponseStatus status = resp.status() != null ? HttpResponseStatus
+                        .valueOf(resp.status()) : OK;
 
-                response = new DefaultFullHttpResponse(
-                        HTTP_1_1, httpContent.getDecoderResult().isSuccess() ? status : BAD_REQUEST,
-                        Unpooled.copiedBuffer(resp.toString(), CharsetUtil.UTF_8));
+                response = new DefaultFullHttpResponse(HTTP_1_1, httpContent
+                        .getDecoderResult().isSuccess() ? status : BAD_REQUEST,
+                        Unpooled.copiedBuffer(resp.toString(),
+                                CharsetUtil.UTF_8));
+
+                // Headers
+                Set<Entry<String, String>> entrySet = resp.headers().entrySet();
+                for (Entry<String, String> entry : entrySet) {
+                    response.headers().add(entry.getKey(), entry.getValue());
+                }
+
             } else {
-                response = new DefaultFullHttpResponse(
-                        HTTP_1_1, NOT_FOUND);
+                response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
             }
 
             ctx.writeAndFlush(response);
             // TODO Check for keep alive
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
+                    ChannelFutureListener.CLOSE);
         }
     }
 }
