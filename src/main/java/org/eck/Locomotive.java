@@ -98,7 +98,7 @@ public class Locomotive {
             ch = b.bind(port).sync().channel();
 
             System.out.println(
-                    "Open your web browser and navigate to http://127.0.0.1:" + port+ '/'
+                    "Listening one http://127.0.0.1:" + port+ '/'
                     );
         } catch (Exception e) {
             throw new RuntimeException(e);

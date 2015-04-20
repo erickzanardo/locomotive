@@ -63,4 +63,14 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
                 .routeParam("number1", "1").routeParam("number2", "2").asString();
         Assert.assertEquals("3", response.getBody());
     }
+
+    @Test
+    public void testRequestHeaders() throws UnirestException {
+        locomotive.post("/calc", (req, resp) -> {
+            resp.append(req.header("my-header"));
+        });
+
+        HttpResponse<String> response = Unirest.post(url("/calc")).header("my-header", "Hello Header").asString();
+        Assert.assertEquals("Hello Header", response.getBody());
+    }
 }

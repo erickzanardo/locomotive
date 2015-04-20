@@ -1,5 +1,6 @@
 package org.eck;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -143,5 +144,10 @@ public class LocomotiveRequestWrapper {
 
     public void body(String body) {
         this.body = body;
+    }
+
+    public String header(String headerName) {
+        HttpHeaders headers = this.request.headers();
+        return headers.get(headerName);
     }
 }
