@@ -6,6 +6,10 @@ This is a simple Java Rest API, based on the NodeJs lib Express.
 
 Comming soon
 
+## Charset
+
+For now, locomotive only read and write data using UTF-8 charset, but we are already implementing this :)
+
 ## Hello World
 ```java
 Locomotive locomotive = new Locomotive(8080);
