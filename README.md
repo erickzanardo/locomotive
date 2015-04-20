@@ -4,7 +4,21 @@ This is a simple Java Rest API, based on the NodeJs lib Express.
 
 ## Maven repository
 
-Comming soon
+Repository
+```xml
+<repository>
+  <id>erickzanardo-releases</id>
+  <url>http://erickzanardo.github.com/maven/releases/</url>
+</repository>
+```
+Dependency
+```xml
+<dependency>
+  <groupId>org.eck</groupId>
+  <artifactId>locomotive</artifactId>
+  <version>1.0.1-ALPHA</version>
+</dependency>
+```
 
 ## Charset
 
