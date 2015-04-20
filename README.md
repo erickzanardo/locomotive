@@ -43,7 +43,7 @@ locomotive.get("/user", (req, resp) -> {
 
 // FormData
 locomotive.post("/user", (req, resp) -> {
-    req.param("name").asInteger(); // James
+    req.param("name").asString(); // James
 });
 // POST http://localhost:8080/user
 // FormData: name=James
@@ -61,7 +61,7 @@ locomotive.post("/user", (req, resp) -> {
 ## Route params
 ```java
 locomotive.get("/users/:id", (req, resp) -> {
-    req.param("id"); // 2
+    req.param("id").asInteger(); // 2
 });
 
 // GET http://localhost:8080/users/2
