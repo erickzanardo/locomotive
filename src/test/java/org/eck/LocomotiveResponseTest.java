@@ -38,8 +38,4 @@ public class LocomotiveResponseTest extends AbstractLocomotiveTest {
         Assert.assertEquals("application/json", httpResponse.getHeaders().get("content-type").get(0));
         Assert.assertEquals("James", httpResponse.getBody().getObject().getString("name"));
     }
-
-    public String url(String url) {
-        return "http://localhost:8080" + url;
-    }
 }

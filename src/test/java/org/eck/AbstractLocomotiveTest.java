@@ -16,4 +16,8 @@ public abstract class AbstractLocomotiveTest {
     public void tearDown() {
         locomotive.shutdown();
     }
+
+    protected String url(String url) {
+        return "http://localhost:8080" + url;
+    }
 }

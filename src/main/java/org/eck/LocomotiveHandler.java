@@ -4,10 +4,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
-import java.util.Map.Entry;
-import java.util.Set;
-
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,12 +14,17 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
+
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
     private HttpRequest request;
     private Locomotive locomotive;
     private Wagon wagon;
+    private LocomotiveRequestWrapper requestWrapper;
 
     public LocomotiveHandler(Locomotive locomotive) {
         this.locomotive = locomotive;
@@ -41,41 +43,54 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
             HttpRequest request = this.request = (HttpRequest) msg;
             String method = request.getMethod().name().toUpperCase();
             String uri = request.getUri();
+            if (uri.contains("?")) {
+                uri = uri.substring(0, uri.indexOf("?"));
+            }
 
+            this.requestWrapper = new LocomotiveRequestWrapper(this.request);
             this.wagon = locomotive.getWagon(method, uri);
         }
 
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
 
-            FullHttpResponse response = null;
-            if (this.wagon != null) {
-                LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
-                this.wagon.process(null, resp);
-
-                // Status
-                HttpResponseStatus status = resp.status() != null ? HttpResponseStatus
-                        .valueOf(resp.status()) : OK;
-
-                response = new DefaultFullHttpResponse(HTTP_1_1, httpContent
-                        .getDecoderResult().isSuccess() ? status : BAD_REQUEST,
-                        Unpooled.copiedBuffer(resp.toString(),
-                                CharsetUtil.UTF_8));
-
-                // Headers
-                Set<Entry<String, String>> entrySet = resp.headers().entrySet();
-                for (Entry<String, String> entry : entrySet) {
-                    response.headers().add(entry.getKey(), entry.getValue());
-                }
-
-            } else {
-                response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
+            ByteBuf content = httpContent.content();
+            if (content.isReadable()) {
+                requestWrapper.body(content.toString(CharsetUtil.UTF_8));
             }
 
-            ctx.writeAndFlush(response);
-            // TODO Check for keep alive
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
-                    ChannelFutureListener.CLOSE);
+            if (msg instanceof LastHttpContent) {
+                FullHttpResponse response = null;
+                if (this.wagon != null) {
+                    LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
+                    this.wagon.process(requestWrapper, resp);
+
+                    // Status
+                    HttpResponseStatus status = resp.status() != null ? HttpResponseStatus
+                            .valueOf(resp.status()) : OK;
+
+                    response = new DefaultFullHttpResponse(HTTP_1_1,
+                            httpContent.getDecoderResult().isSuccess() ? status
+                                    : BAD_REQUEST, Unpooled.copiedBuffer(
+                                    resp.toString(), CharsetUtil.UTF_8));
+
+                    // Headers
+                    Set<Entry<String, String>> entrySet = resp.headers()
+                            .entrySet();
+                    for (Entry<String, String> entry : entrySet) {
+                        response.headers()
+                                .add(entry.getKey(), entry.getValue());
+                    }
+
+                } else {
+                    response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
+                }
+
+                ctx.writeAndFlush(response);
+                // TODO Check for keep alive
+                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
+                        ChannelFutureListener.CLOSE);
+            }
         }
     }
 }
