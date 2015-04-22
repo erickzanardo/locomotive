@@ -104,9 +104,7 @@ public class Locomotive {
 
             ch = b.bind(port).sync().channel();
 
-            System.out.println(
-                    "Listening one http://127.0.0.1:" + port+ '/'
-                    );
+            System.out.println("Listening one http://127.0.0.1:" + port + '/');
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -114,6 +112,10 @@ public class Locomotive {
 
     public List<LocomotiveMiddleware> middlewares() {
         return middlewares;
+    }
+
+    public void addMiddleware(LocomotiveMiddleware middleware) {
+        this.middlewares.add(middleware);
     }
 
     public static void main(String[] args) {

@@ -6,9 +6,14 @@ import org.junit.Before;
 public abstract class AbstractLocomotiveTest {
     protected Locomotive locomotive;
 
+    protected void beforeBoot(Locomotive locomotive) {
+        
+    }
+
     @Before
     public void tearUp() {
         locomotive = new Locomotive(8080);
+        beforeBoot(locomotive);
         locomotive.boot();
     }
 
