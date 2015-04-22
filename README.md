@@ -4,7 +4,21 @@ This is a simple Java Rest API, based on the NodeJs lib Express.
 
 ## Maven repository
 
-Comming soon
+Repository
+```xml
+<repository>
+  <id>erickzanardo-releases</id>
+  <url>http://erickzanardo.github.com/maven/releases/</url>
+</repository>
+```
+Dependency
+```xml
+<dependency>
+  <groupId>org.eck</groupId>
+  <artifactId>locomotive</artifactId>
+  <version>1.0.1-ALPHA</version>
+</dependency>
+```
 
 ## Charset
 
@@ -29,7 +43,7 @@ locomotive.get("/user", (req, resp) -> {
 
 // FormData
 locomotive.post("/user", (req, resp) -> {
-    req.param("name").asInteger(); // James
+    req.param("name").asString(); // James
 });
 // POST http://localhost:8080/user
 // FormData: name=James
@@ -47,7 +61,7 @@ locomotive.post("/user", (req, resp) -> {
 ## Route params
 ```java
 locomotive.get("/users/:id", (req, resp) -> {
-    req.param("id"); // 2
+    req.param("id").asInteger(); // 2
 });
 
 // GET http://localhost:8080/users/2
