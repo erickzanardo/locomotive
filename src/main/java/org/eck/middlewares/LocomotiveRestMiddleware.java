@@ -7,9 +7,16 @@ import org.eck.Wagon;
 
 public class LocomotiveRestMiddleware implements LocomotiveMiddleware {
 
+    private Locomotive locomotive;
+
+    public LocomotiveRestMiddleware(Locomotive locomotive) {
+        super();
+        this.locomotive = locomotive;
+    }
+
     @Override
-    public void execute(Locomotive locomotive,
-            LocomotiveRequestWrapper req, LocomotiveResponseWrapper resp) {
+    public void execute(LocomotiveRequestWrapper req,
+            LocomotiveResponseWrapper resp) {
 
         String uri = req.uri();
         String pattern = req.pattern();

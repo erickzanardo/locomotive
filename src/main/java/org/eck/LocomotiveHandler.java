@@ -65,7 +65,7 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
 
                 LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
                 for (LocomotiveMiddleware middleware : locomotive.middlewares()) {
-                    middleware.execute(locomotive, requestWrapper, resp);
+                    middleware.execute(requestWrapper, resp);
                     if (requestWrapper.isProcessed()) {
                         break;
                     }

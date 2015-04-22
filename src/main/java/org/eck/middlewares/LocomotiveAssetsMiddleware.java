@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.eck.Locomotive;
 import org.eck.LocomotiveRequestWrapper;
 import org.eck.LocomotiveResponseWrapper;
 
@@ -19,7 +18,7 @@ public class LocomotiveAssetsMiddleware implements LocomotiveMiddleware {
     }
 
     @Override
-    public void execute(Locomotive locomotive, LocomotiveRequestWrapper req,
+    public void execute(LocomotiveRequestWrapper req,
             LocomotiveResponseWrapper resp) {
 
         InputStream resourceAsStream = LocomotiveAssetsMiddleware.class
