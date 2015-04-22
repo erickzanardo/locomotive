@@ -4,7 +4,7 @@
   <groupId>org.eck</groupId>
   <artifactId>locomotive</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2-ALPHA</version>
   <name>locomotive</name>
   <url>http://maven.apache.org</url>
   <dependencies>
