@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eck.middlewares.LocomotiveMiddleware;
+import org.eck.middlewares.LocomotiveRestMiddleware;
 import org.eck.path.RouteParser;
 
 public class Locomotive {
@@ -26,10 +28,15 @@ public class Locomotive {
     private Channel ch;
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workerGroup;
+    private List<LocomotiveMiddleware> middlewares;
 
     public Locomotive(int port) {
         super();
         this.port = port;
+
+        // Initialize and add the default middlewares
+        middlewares = new ArrayList<LocomotiveMiddleware>();
+        middlewares.add(new LocomotiveRestMiddleware());
     }
 
     public void get(String url, Wagon wagon) {
@@ -103,6 +110,10 @@ public class Locomotive {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<LocomotiveMiddleware> middlewares() {
+        return middlewares;
     }
 
     public static void main(String[] args) {

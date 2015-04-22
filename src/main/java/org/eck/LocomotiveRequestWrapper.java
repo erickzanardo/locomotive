@@ -27,6 +27,7 @@ public class LocomotiveRequestWrapper {
     private String body;
     private String uri;
     private String pattern;
+    private boolean processed;
 
     public LocomotiveRequestWrapper(HttpRequest request, String uri, String pattern) {
         this.request = request;
@@ -65,6 +66,26 @@ public class LocomotiveRequestWrapper {
             throw new RuntimeException(e);
         }
         decoder.destroy();
+    }
+
+    public String uri() {
+        return this.uri;
+    }
+
+    public String pattern() {
+        return this.pattern;
+    }
+
+    public void processed() {
+        this.processed = true;
+    }
+
+    public boolean isProcessed() {
+        return processed;
+    }
+
+    public String method() {
+        return this.request.getMethod().name().toUpperCase();
     }
 
     public Param param(String key) {

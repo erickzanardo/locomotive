@@ -20,12 +20,12 @@ import io.netty.util.CharsetUtil;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eck.middlewares.LocomotiveMiddleware;
+
 public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
     private HttpRequest request;
     private Locomotive locomotive;
-    private Wagon wagon;
     private LocomotiveRequestWrapper requestWrapper;
-    private String pattern;
 
     public LocomotiveHandler(Locomotive locomotive) {
         this.locomotive = locomotive;
@@ -42,16 +42,14 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof HttpRequest) {
             // Deal with request, parse url and other things
             HttpRequest request = this.request = (HttpRequest) msg;
-            String method = request.getMethod().name().toUpperCase();
             String uri = request.getUri();
             if (uri.contains("?")) {
                 uri = uri.substring(0, uri.indexOf("?"));
             }
 
-            this.pattern = locomotive.getUriPattern(uri);
-            this.wagon = locomotive.getWagon(method, pattern != null ? pattern : uri);
-
-            this.requestWrapper = new LocomotiveRequestWrapper(this.request, uri, pattern);
+            String pattern = locomotive.getUriPattern(uri);
+            this.requestWrapper = new LocomotiveRequestWrapper(this.request,
+                    uri, pattern);
         }
 
         if (msg instanceof HttpContent) {
@@ -64,10 +62,16 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
 
             if (msg instanceof LastHttpContent) {
                 FullHttpResponse response = null;
-                if (this.wagon != null) {
-                    LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
-                    this.wagon.process(requestWrapper, resp);
 
+                LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
+                for (LocomotiveMiddleware middleware : locomotive.middlewares()) {
+                    middleware.execute(locomotive, requestWrapper, resp);
+                    if (requestWrapper.isProcessed()) {
+                        break;
+                    }
+                }
+
+                if (requestWrapper.isProcessed()) {
                     // Status
                     HttpResponseStatus status = resp.status() != null ? HttpResponseStatus
                             .valueOf(resp.status()) : OK;
@@ -84,7 +88,6 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
                         response.headers()
                                 .add(entry.getKey(), entry.getValue());
                     }
-
                 } else {
                     response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
                 }
