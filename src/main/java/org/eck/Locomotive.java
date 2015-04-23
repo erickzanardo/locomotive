@@ -21,6 +21,7 @@ public class Locomotive {
     private static final String PUT = "PUT";
     private static final String POST = "POST";
     private static final String DELETE = "DELETE";
+    private static final String PATCH = "PATCH";
 
     private int port;
     private List<String> routeWagons = new ArrayList<String>();
@@ -52,6 +53,10 @@ public class Locomotive {
 
     public void delete(String url, Wagon wagon) {
         addWagon(DELETE, url, wagon);
+    }
+
+    public void patch(String url, Wagon wagon) {
+        addWagon(PATCH, url, wagon);
     }
 
     public String getUriPattern(String uri) {
