@@ -36,7 +36,6 @@ public class Locomotive {
 
         // Initialize and add the default middlewares
         middlewares = new ArrayList<LocomotiveMiddleware>();
-        middlewares.add(new LocomotiveRestMiddleware(this));
     }
 
     public void get(String url, Wagon wagon) {
@@ -92,6 +91,8 @@ public class Locomotive {
     }
 
     public void boot() {
+        middlewares.add(new LocomotiveRestMiddleware(this));
+
         // Configure the server.
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();

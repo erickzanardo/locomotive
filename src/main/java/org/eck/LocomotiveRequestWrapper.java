@@ -24,12 +24,14 @@ public class LocomotiveRequestWrapper {
 
     private HttpRequest request;
     private Map<String, Param> params = new HashMap<String, Param>();
+    private Map<String, Object> resources = new HashMap<String, Object>();
     private String body;
     private String uri;
     private String pattern;
     private boolean processed;
 
-    public LocomotiveRequestWrapper(HttpRequest request, String uri, String pattern) {
+    public LocomotiveRequestWrapper(HttpRequest request, String uri,
+            String pattern) {
         this.request = request;
         this.uri = uri;
         this.pattern = pattern;
@@ -45,7 +47,8 @@ public class LocomotiveRequestWrapper {
             Map<String, String> params = RouteParser.parse(pattern, uri);
             Set<Entry<String, String>> entrySet = params.entrySet();
             for (Entry<String, String> entry : entrySet) {
-                this.params.put(entry.getKey(), new Param(Arrays.asList(entry.getValue())));
+                this.params.put(entry.getKey(),
+                        new Param(Arrays.asList(entry.getValue())));
             }
         }
     }
@@ -170,5 +173,13 @@ public class LocomotiveRequestWrapper {
     public String header(String headerName) {
         HttpHeaders headers = this.request.headers();
         return headers.get(headerName);
+    }
+
+    public void resource(String key, Object value) {
+        this.resources.put(key, value);
+    }
+
+    public Object resource(String key) {
+        return resources.get(key);
     }
 }
