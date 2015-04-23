@@ -16,7 +16,7 @@ Dependency
 <dependency>
   <groupId>org.eck</groupId>
   <artifactId>locomotive</artifactId>
-  <version>1.0.1-ALPHA</version>
+  <version>1.0.3-ALPHA</version>
 </dependency>
 ```
 
@@ -66,4 +66,56 @@ locomotive.get("/users/:id", (req, resp) -> {
 
 // GET http://localhost:8080/users/2
 ```
+##  Middlewares
 
+With middlewares you can add custom behavior to all your requests and are easy ways to implement generic things, for example, let's build a simple middleware that prints on the server the content-type header for every request.
+
+```java
+Locomotive locomotive = new Locomotive(8080);
+locomotive.addMiddleware( (req, resp) -> {
+    System.out.println(req.header("content-type"));
+} );
+locomotive.boot();
+```
+## Serving static files
+
+Locomotive has a built-in middleware for serving static files, to use it just create an instance of LocomotiveAssetsMiddleware passing on it's constructor the folder name which has the static files and add it to your Locomotive instance, see the following example
+
+```java
+Locomotive locomotive = new Locomotive(8080);
+locomotive.addMiddleware(new LocomotiveAssetsMiddleware("public"));
+locomotive.boot();
+```
+## Exceptions
+
+Any exception throwed on your endpoints/middlewares, will be catch by Locomotive and it will send the client an Internal Server Error with the exception message on the response body.
+
+If you like to create exceptions that turn into http errors, you can extend from LocomotiveException or throw the GenericLocomotiveException, see the following examples
+
+Extending LocomotiveException
+```java
+class UnauthorizeException extends LocomotiveException {
+    private static final long serialVersionUID = 1821368040400403033L;
+
+    public UnauthorizeException(String message) {
+        super(message);
+    }
+
+    @Override
+    public int code() {
+        return 401;
+    }
+
+}
+
+locomotive.post("/user", (req, resp) -> {
+    throw new UnauthorizeException("You shall not pass");
+});
+```
+
+Throwing a GenericLocomotiveException
+```java
+locomotive.post("/user", (req, resp) -> {
+    throw new GenericLocomotiveException(401, "You shall not pass");
+});
+```
