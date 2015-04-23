@@ -20,6 +20,7 @@ import io.netty.util.CharsetUtil;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eck.exceptions.LocomotiveException;
 import org.eck.middlewares.LocomotiveMiddleware;
 
 public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
@@ -64,11 +65,22 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
                 FullHttpResponse response = null;
 
                 LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
-                for (LocomotiveMiddleware middleware : locomotive.middlewares()) {
-                    middleware.execute(requestWrapper, resp);
-                    if (requestWrapper.isProcessed()) {
-                        break;
+                try {
+                    for (LocomotiveMiddleware middleware : locomotive
+                            .middlewares()) {
+                        middleware.execute(requestWrapper, resp);
+                        if (requestWrapper.isProcessed()) {
+                            break;
+                        }
                     }
+                } catch (LocomotiveException e) {
+                    requestWrapper.processed();
+                    resp.status(e.code());
+                    resp.append(e.getMessage());
+                } catch (Exception e) {
+                    requestWrapper.processed();
+                    resp.status(500);
+                    resp.append(e.getMessage());
                 }
 
                 if (requestWrapper.isProcessed()) {
