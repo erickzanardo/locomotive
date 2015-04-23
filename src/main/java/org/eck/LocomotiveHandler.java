@@ -81,6 +81,7 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
                     requestWrapper.processed();
                     resp.status(500);
                     resp.append(e.getMessage());
+                    e.printStackTrace();
                 }
 
                 if (requestWrapper.isProcessed()) {
