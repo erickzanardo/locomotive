@@ -14,7 +14,7 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
         locomotive.get("/calc", (req, resp) -> {
             int sum = req.param("number1").asInteger()
                     + req.param("number2").asInteger();
-            resp.append(String.valueOf(sum));
+            resp.send(String.valueOf(sum));
         });
 
         HttpResponse<String> response = Unirest.get(url("/calc"))
@@ -27,7 +27,7 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
         locomotive.post("/calc", (req, resp) -> {
             int sum = req.param("number1").asInteger()
                     + req.param("number2").asInteger();
-            resp.append(String.valueOf(sum));
+            resp.send(String.valueOf(sum));
         });
 
         HttpResponse<String> response = Unirest.post(url("/calc"))
@@ -43,7 +43,7 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
                     String[] values = req.body().split(",");
                     int sum = Integer.parseInt(values[0])
                             + Integer.parseInt(values[1]);
-                    resp.append(String.valueOf(sum));
+                    resp.send(String.valueOf(sum));
                 });
 
         HttpResponse<String> response = Unirest.post(url("/calc")).body("1,2")
@@ -56,7 +56,7 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
         locomotive.post("/calc/sum/:number1/and/:number2", (req, resp) -> {
             int sum = req.param("number1").asInteger()
                     + req.param("number2").asInteger();
-            resp.append(String.valueOf(sum));
+            resp.send(String.valueOf(sum));
         });
 
         HttpResponse<String> response = Unirest.post(url("/calc/sum/{number1}/and/{number2}"))
@@ -67,7 +67,7 @@ public class LocomotiveRequestTest extends AbstractLocomotiveTest {
     @Test
     public void testRequestHeaders() throws UnirestException {
         locomotive.post("/calc", (req, resp) -> {
-            resp.append(req.header("my-header"));
+            resp.send(req.header("my-header"));
         });
 
         HttpResponse<String> response = Unirest.post(url("/calc")).header("my-header", "Hello Header").asString();

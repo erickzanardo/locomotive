@@ -19,7 +19,7 @@ public class LocomotiveRequestResourceTest extends AbstractLocomotiveTest {
     @Test
     public void testRequestResources() throws UnirestException {
         locomotive.post("/calc/:number", (req, resp) -> {
-            resp.append(req.resource("new-number").toString());
+            resp.send(req.resource("new-number").toString());
         });
 
         HttpResponse<String> response = Unirest.post(url("/calc/2")).asString();

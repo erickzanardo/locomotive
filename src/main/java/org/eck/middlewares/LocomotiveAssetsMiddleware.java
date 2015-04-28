@@ -32,8 +32,8 @@ public class LocomotiveAssetsMiddleware implements LocomotiveMiddleware {
                 while ((line = reader.readLine()) != null) {
                     out.append(line);
                 }
-                resp.append(out.toString());
                 req.processed();
+                resp.send(out.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

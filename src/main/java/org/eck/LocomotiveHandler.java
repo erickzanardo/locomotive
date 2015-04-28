@@ -1,24 +1,12 @@
 package org.eck;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
-
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eck.exceptions.LocomotiveException;
 import org.eck.middlewares.LocomotiveMiddleware;
@@ -62,9 +50,8 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
             }
 
             if (msg instanceof LastHttpContent) {
-                FullHttpResponse response = null;
-
-                LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper();
+                LocomotiveResponseWrapper resp = new LocomotiveResponseWrapper(
+                        httpContent, ctx);
                 try {
                     for (LocomotiveMiddleware middleware : locomotive
                             .middlewares()) {
@@ -76,39 +63,18 @@ public class LocomotiveHandler extends SimpleChannelInboundHandler<Object> {
                 } catch (LocomotiveException e) {
                     requestWrapper.processed();
                     resp.status(e.code());
-                    resp.append(e.getMessage());
+                    resp.send(e.getMessage());
                 } catch (Exception e) {
                     requestWrapper.processed();
                     resp.status(500);
-                    resp.append(e.getMessage());
+                    resp.send(e.getMessage());
                     e.printStackTrace();
                 }
 
-                if (requestWrapper.isProcessed()) {
-                    // Status
-                    HttpResponseStatus status = resp.status() != null ? HttpResponseStatus
-                            .valueOf(resp.status()) : OK;
-
-                    response = new DefaultFullHttpResponse(HTTP_1_1,
-                            httpContent.getDecoderResult().isSuccess() ? status
-                                    : BAD_REQUEST, Unpooled.copiedBuffer(
-                                    resp.toString(), CharsetUtil.UTF_8));
-
-                    // Headers
-                    Set<Entry<String, String>> entrySet = resp.headers()
-                            .entrySet();
-                    for (Entry<String, String> entry : entrySet) {
-                        response.headers()
-                                .add(entry.getKey(), entry.getValue());
-                    }
-                } else {
-                    response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
+                if (!requestWrapper.isProcessed()) {
+                    resp.status(404);
+                    resp.send();
                 }
-
-                ctx.writeAndFlush(response);
-                // TODO Check for keep alive
-                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
-                        ChannelFutureListener.CLOSE);
             }
         }
     }

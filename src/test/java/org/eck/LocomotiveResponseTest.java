@@ -12,7 +12,7 @@ public class LocomotiveResponseTest extends AbstractLocomotiveTest {
 
     @Test
     public void testResponseWrite() throws UnirestException {
-        locomotive.get("/hello", (req, resp) -> resp.append("World"));
+        locomotive.get("/hello", (req, resp) -> resp.send("World"));
         HttpResponse<String> httpResponse = Unirest.get(url("/hello")).asString();
         Assert.assertEquals("World", httpResponse.getBody());
     }
@@ -21,7 +21,7 @@ public class LocomotiveResponseTest extends AbstractLocomotiveTest {
     public void testResponseStatus() throws UnirestException {
         locomotive.get("/hello", (req, resp) -> {
             resp.status(403);
-            resp.append("You shall not pass");
+            resp.send("You shall not pass");
         });
         HttpResponse<String> httpResponse = Unirest.get(url("/hello")).asString();
         Assert.assertEquals(403, httpResponse.getStatus());
@@ -31,8 +31,8 @@ public class LocomotiveResponseTest extends AbstractLocomotiveTest {
     @Test
     public void testResponseContentType() throws UnirestException {
         locomotive.get("/hello", (req, resp) -> {
-            resp.append("{ \"name\": \"James\" }");
             resp.contentType("application/json");
+            resp.send("{ \"name\": \"James\" }");
         });
         HttpResponse<JsonNode> httpResponse = Unirest.get(url("/hello")).asJson();
         Assert.assertEquals("application/json", httpResponse.getHeaders().get("content-type").get(0));
