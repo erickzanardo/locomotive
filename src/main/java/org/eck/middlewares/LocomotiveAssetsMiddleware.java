@@ -1,9 +1,13 @@
 package org.eck.middlewares;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.eck.LocomotiveRequestWrapper;
 import org.eck.LocomotiveResponseWrapper;
@@ -21,22 +25,37 @@ public class LocomotiveAssetsMiddleware implements LocomotiveMiddleware {
     public void execute(LocomotiveRequestWrapper req,
             LocomotiveResponseWrapper resp) {
 
-        InputStream resourceAsStream = LocomotiveAssetsMiddleware.class
-                .getClassLoader().getResourceAsStream(assetsFolder + req.uri());
-        if (resourceAsStream != null) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    resourceAsStream));
-            StringBuilder out = new StringBuilder();
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    out.append(line);
-                }
+        try {
+            URL resource = LocomotiveAssetsMiddleware.class.getClassLoader()
+                    .getResource(assetsFolder + req.uri());
+
+            if (resource != null) {
                 req.processed();
-                resp.send(out.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                URI uri = resource.toURI();
+                Path path = Paths.get(uri);
+
+                final AsynchronousFileChannel channel = AsynchronousFileChannel
+                        .open(path);
+                final ByteBuffer buffer = ByteBuffer.allocate(100000);
+
+                channel.read(buffer, 0, buffer,
+                        new CompletionHandler<Integer, ByteBuffer>() {
+                            public void completed(Integer result,
+                                    ByteBuffer attachment) {
+                                byte[] array = attachment.array();
+                                resp.send(new String(Arrays.copyOf(array, result)));
+                            }
+
+                            public void failed(Throwable exception,
+                                    ByteBuffer attachment) {
+                                resp.status(500);
+                                resp.send(exception.getMessage());
+                            }
+                        });
+
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
