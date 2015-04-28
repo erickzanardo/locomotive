@@ -1,5 +1,6 @@
 package org.eck.middlewares;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -42,8 +43,11 @@ public class LocomotiveAssetsMiddleware implements LocomotiveMiddleware {
                         new CompletionHandler<Integer, ByteBuffer>() {
                             public void completed(Integer result,
                                     ByteBuffer attachment) {
-                                byte[] array = attachment.array();
-                                resp.send(new String(Arrays.copyOf(array, result)));
+                                try {
+                                    channel.close();
+                                } catch (IOException e) {
+                                }
+                                resp.send(new String(Arrays.copyOf(attachment.array(), result)));
                             }
 
                             public void failed(Throwable exception,

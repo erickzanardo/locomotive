@@ -79,8 +79,7 @@ public class LocomotiveResponseWrapper {
             response.headers().add(entry.getKey(), entry.getValue());
         }
 
-        ctx.writeAndFlush(response);
-        // TODO Check for keep alive
+        ctx.write(response);
         ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
                 ChannelFutureListener.CLOSE);
     }
