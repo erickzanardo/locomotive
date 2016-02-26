@@ -104,7 +104,7 @@ public class LocomotiveRequestWrapper {
         }
     }
 
-    class Param {
+    public class Param {
         private List<String> value;
 
         public Param(List<String> value) {
